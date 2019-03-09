@@ -1,0 +1,5 @@
+Build/CMake
+Build/Windows
+Build/Linux
+Output
+.vscode
