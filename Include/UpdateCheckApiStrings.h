@@ -111,7 +111,10 @@ const char* const STR_ERROR_DOWNLOAD_URL_NOT_FOUND_IN_ASSET = "The download url 
 
 // High Level Error Messages.
 const char* const STR_ERROR_URL_MUST_POINT_TO_A_JSON_FILE = "URL must point to a JSON file.";
+const char* const STR_ERROR_UNABLE_TO_FIND_TEMP_DIRECTORY = "Unable to find temp directory.";
+const char* const STR_ERROR_UNKNOWN_ERROR_OCCURRED = "An unknown error occurred: ";
 const char* const STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER = "Failed to launch the AMD Tools Downloader.";
+const char* const STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER_UNKNOWN_ERROR = "Failed to launch the AMD Tools Downloader due to an unknown error: ";
 const char* const STR_ERROR_FAILED_TO_DOWNLOAD_VERSION_FILE = "Failed to download version file.";
 const char* const STR_ERROR_FAILED_TO_LOAD_VERSION_FILE = "Failed to load version file.";
 const char* const STR_ERROR_DOWNLOADED_AN_EMPTY_VERSION_FILE = "Downloaded an empty version file.";

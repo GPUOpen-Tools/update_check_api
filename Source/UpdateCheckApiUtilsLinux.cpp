@@ -30,28 +30,27 @@ static const char* STR_ERROR_FAILED_TO_READ_OUTPUT = "Error: failed to read outp
 static const char* LINUX_TEMP_DIRECTORY_ENV_VARIABLE_NAME = "TMPDIR";
 static const char* LINUX_TEMP_DIRECTORY_DEFAULT_PATH = "/tmp";
 
-std::string GetTempDirectory()
+bool GetTempDirectory(std::string& tempDir)
 {
-    std::string strTempDir;
     const char* tmpPtr = getenv(LINUX_TEMP_DIRECTORY_ENV_VARIABLE_NAME);
     if (tmpPtr != nullptr)
     {
-        strTempDir = tmpPtr;
+        tempDir = tmpPtr;
     }
     else
     {
 #if defined(P_tmpdir)
         // P_tmpdir is a macro defined in stdio.h.
-        strTempDir = P_tmpdir;
+        tempDir = P_tmpdir;
 #endif
-        if (strTempDir.empty())
+        if (tempDir.empty())
         {
             // Use default path.
-            strTempDir = LINUX_TEMP_DIRECTORY_DEFAULT_PATH;
+            tempDir = LINUX_TEMP_DIRECTORY_DEFAULT_PATH;
         }
     }
 
-    return strTempDir;
+    return true;
 }
 
 // Returns true iff the function succeeded. Buffer is set to true iff the
