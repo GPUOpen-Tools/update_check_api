@@ -16,7 +16,7 @@ namespace UpdateCheckApiUtils
     // Retrieves the temporary directory. Files belong in this directory if they
     // are expected to only exist for the duration that the application is
     // running. Guaranteed to not return an empty string.
-    std::string GetTempDirectory();
+    bool GetTempDirectory(std::string& tempDir);
 
     // Executes a supplied command line and captures the output text. This is a
     // synchronous method, but has support for canceling the process if it is
