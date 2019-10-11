@@ -85,19 +85,23 @@ void UpdateCheckResultsDialog::SetResults(const UpdateCheck::UpdateInfo& updateI
             updateResultHtml.append(releaseIter->m_date.c_str());
             updateResultHtml.append(STR_HTML_NEWLINE);
 
-            if (!releaseIter->m_tags.empty())
+            if (m_showTags)
             {
-                updateResultHtml.append(STR_TAGS);
-                updateResultHtml.append(releaseIter->m_tags[0].c_str());
-
-                for (size_t i = 1; i != releaseIter->m_tags.size(); ++i)
+                if (!releaseIter->m_tags.empty())
                 {
-                    updateResultHtml.append(STR_TAGS_SEPARATOR);
-                    updateResultHtml.append(releaseIter->m_tags[i].c_str());
+                    updateResultHtml.append(STR_TAGS);
+                    updateResultHtml.append(releaseIter->m_tags[0].c_str());
+
+                    for (size_t i = 1; i != releaseIter->m_tags.size(); ++i)
+                    {
+                        updateResultHtml.append(STR_TAGS_SEPARATOR);
+                        updateResultHtml.append(releaseIter->m_tags[i].c_str());
+                    }
                 }
+
+                updateResultHtml.append(STR_HTML_NEWLINE);
             }
 
-            updateResultHtml.append(STR_HTML_NEWLINE);
             updateResultHtml.append(STR_HTML_NEWLINE);
 
             // Display download links.
@@ -106,8 +110,8 @@ void UpdateCheckResultsDialog::SetResults(const UpdateCheck::UpdateInfo& updateI
                 updateResultHtml.append(STR_UPDATES_DOWNLOAD_THIS_RELEASE_FROM);
                 updateResultHtml.append(STR_HTML_NEWLINE);
 
-                // Sample output: "Windows: [MSI] [ZIP] [ZIP]" with the full hyperlink as a tooltip over the MSI, ZIP, ZIP to allow
-                // users to distinquish between the two ZIP files.
+                // Sample output: "Windows: [MSI] [ZIP] [ZIP]" with the full hyper link as a tooltip over the MSI, ZIP, ZIP to allow
+                // users to distinguish between the two ZIP files.
                 for (auto platformIter = releaseIter->m_targetPlatforms.cbegin(); platformIter != releaseIter->m_targetPlatforms.cend(); ++platformIter)
                 {
                     updateResultHtml.append(STR_HTML_DIV_INDENT_40_OPEN);
@@ -134,7 +138,7 @@ void UpdateCheckResultsDialog::SetResults(const UpdateCheck::UpdateInfo& updateI
                 updateResultHtml.append(STR_HTML_NEWLINE);
             }
 
-            // Diplay additional info links.
+            // Display additional info links.
             if (!releaseIter->m_infoLinks.empty())
             {
                 updateResultHtml.append(STR_UPDATES_FOR_MORE_INFORMATION_VISIT);
@@ -178,4 +182,9 @@ void UpdateCheckResultsDialog::SetResults(const UpdateCheck::Results& results)
     {
         SetResults(results.updateInfo);
     }
+}
+
+void UpdateCheckResultsDialog::SetShowTags(bool showTags)
+{
+    m_showTags = showTags;
 }

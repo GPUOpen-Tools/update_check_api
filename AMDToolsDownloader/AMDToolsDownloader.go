@@ -12,7 +12,7 @@ func main() {
 
     argCount := len(os.Args[1:])
     if (argCount != 2) {
-        fmt.Printf("Usage: urlDownload url localPath\n")
+        fmt.Printf("Usage: AMDToolsDownloader url localPath\n")
         fmt.Printf("\turl - The url to the file to download\n")
         fmt.Printf("\tlocalPath - The path and filename to save the downloaded file\n")
         os.Exit(1)
@@ -25,7 +25,6 @@ func main() {
     if (err != nil) {
         panic(err)
     }
-
 }
 
 

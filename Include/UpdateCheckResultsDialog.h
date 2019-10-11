@@ -26,7 +26,9 @@ public:
 
     void SetResults(const UpdateCheck::Results& results);
     void SetResults(const UpdateCheck::UpdateInfo& updateInfo);
+    void SetShowTags(bool showTags);
 
 private:
     Ui::UpdateCheckResultsDialog *ui;
+    bool m_showTags = true;
 };

@@ -112,6 +112,7 @@ const char* const STR_ERROR_DOWNLOAD_URL_NOT_FOUND_IN_ASSET = "The download url 
 // High Level Error Messages.
 const char* const STR_ERROR_URL_MUST_POINT_TO_A_JSON_FILE = "URL must point to a JSON file.";
 const char* const STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER = "Failed to launch the AMD Tools Downloader.";
+const char* const STR_ERROR_FAILED_TO_LOAD_LATEST_RELEASE_INFORMATION = "Failed to load latest release information.";
 const char* const STR_ERROR_FAILED_TO_DOWNLOAD_VERSION_FILE = "Failed to download version file.";
 const char* const STR_ERROR_FAILED_TO_LOAD_VERSION_FILE = "Failed to load version file.";
 const char* const STR_ERROR_DOWNLOADED_AN_EMPTY_VERSION_FILE = "Downloaded an empty version file.";

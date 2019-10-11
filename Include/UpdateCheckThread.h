@@ -8,7 +8,7 @@
 //==============================================================================
 #pragma once
 
-#include <UpdateCheckApi.h>
+#include "UpdateCheckApi.h"
 #include <QThread>
 
 namespace UpdateCheck

@@ -235,26 +235,37 @@ static bool LoadJsonFromLatestRelease(const std::string jsonFileUrl, const std::
     }
     else
     {
-        std::string latestReleaseJson;
-        if (LoadJsonFile(latestReleaseApiTempFile, latestReleaseJson, errorMessage))
+        try
         {
-            json latestReleaseJsonDoc = json::parse(latestReleaseJson);
-
-            std::string versionFileUrl;
-            if (FindAssetDownloadUrl(latestReleaseJsonDoc, jsonFileName, versionFileUrl, errorMessage))
+            std::string latestReleaseJson;
+            if (LoadJsonFile(latestReleaseApiTempFile, latestReleaseJson, errorMessage))
             {
-                wasLoaded = DownloadJsonFile(versionFileUrl, jsonString, errorMessage);
-            }
-            else
-            {
-                // Failed to find the Asset, so check for a "message" tag which may indicate an error from the GitHub Release API.
-                auto messageElement = latestReleaseJsonDoc.find(TAG_MESSAGE);
+                // Parsing the json can throw an exception if the string is
+                // not valid json. This can happen in networks that limit
+                // internet access, and result in downloading an html page.
+                json latestReleaseJsonDoc = json::parse(latestReleaseJson);
 
-                if (messageElement != latestReleaseJsonDoc.end())
+                std::string versionFileUrl;
+                if (FindAssetDownloadUrl(latestReleaseJsonDoc, jsonFileName, versionFileUrl, errorMessage))
                 {
-                    errorMessage.append(messageElement->get<std::string>().c_str());
+                    wasLoaded = DownloadJsonFile(versionFileUrl, jsonString, errorMessage);
+                }
+                else
+                {
+                    // Failed to find the Asset, so check for a "message" tag which may indicate an error from the GitHub Release API.
+                    auto messageElement = latestReleaseJsonDoc.find(TAG_MESSAGE);
+
+                    if (messageElement != latestReleaseJsonDoc.end())
+                    {
+                        errorMessage.append(messageElement->get<std::string>().c_str());
+                    }
                 }
             }
+        }
+        catch (...)
+        {
+            wasLoaded = false;
+            errorMessage.append(STR_ERROR_FAILED_TO_LOAD_LATEST_RELEASE_INFORMATION);
         }
     }
 
