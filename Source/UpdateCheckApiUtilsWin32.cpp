@@ -6,12 +6,14 @@
 //=============================================================================
 
 #include "UpdateCheckApiUtils.h"
+#include "UpdateCheckApiStrings.h"
 
 // C++:
 #include <assert.h>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
   #define WIN32_LEAN_AND_MEAN 1
@@ -23,48 +25,70 @@ namespace UpdateCheckApiUtils
 {
 static const char* STR_TEMP_FILE_PREFIX = "tmpAMDToolsUpdateCheck_";
 static const char* STR_TEMP_FILE_EXTENSION = ".txt";
-static const char* STR_ERROR_FAILED_TO_GET_TEMP_DIR = "Error: failed to get Temp directory for downloading file.";
 static const char* STR_ERROR_FAILED_TO_LAUNCH_COMMAND = "Error: failed to launch the command.";
 
-static const char* WINDOWS_TEMP_DIRECTORY_DEFAULT_PATH = "C:/Windows/Temp";
-
-std::string GetTempDirectory()
+bool GetTempDirectory(std::string& tempDir)
 {
-    std::string strTempDir;
     const DWORD maxPathLen = MAX_PATH + 1;
     char stringBuffer[maxPathLen];
+    bool bGotTempDir = false;
 
     // Get a temp directory from Windows.
 #ifdef _UNICODE
     wchar_t wstringBuffer[maxPathLen];
-    DWORD gotTempPath = GetTempPath(maxPathLen, wstringBuffer);
+    DWORD dwGotTempPath = GetTempPath(maxPathLen, wstringBuffer);
 
-    assert(gotTempPath != 0);
-    if (gotTempPath != 0)
+    bGotTempDir = (dwGotTempPath != 0);
+    assert(bGotTempDir);
+    if (bGotTempDir)
     {
         int mbLength = WideCharToMultiByte(CP_UTF8, 0, wstringBuffer, -1, stringBuffer, maxPathLen * sizeof(char), NULL, NULL);
         assert(mbLength != 0);
         if (mbLength != 0)
         {
-            strTempDir = stringBuffer;
+            tempDir = stringBuffer;
         }
     }
 #else
-    DWORD gotTempPath = GetTempPath(maxPathLen, stringBuffer);
-    assert(gotTempPath != 0);
-    if (gotTempPath != 0)
+    DWORD dwGotTempPath = GetTempPath(maxPathLen, stringBuffer);
+    bGotTempDir = (dwGotTempPath != 0);
+    assert(bGotTempDir);
+    if (bGotTempDir)
     {
-        strTempDir = stringBuffer;
+        tempDir = stringBuffer;
     }
 #endif // !_UNICODE
 
-    // If that didn't work to get a user-specific path, then use a default Temp dir.
-    if (strTempDir.size() == 0)
+    // If GetTempPath was successful, then make sure that path actually exists and is writeable,
+    // otherwise skip ahead and report the error condition.
+    if (bGotTempDir)
     {
-        strTempDir = WINDOWS_TEMP_DIRECTORY_DEFAULT_PATH;
+        // Test if directory exists and has write access.
+        struct stat info;
+
+        if (stat(tempDir.c_str(), &info) != 0)
+        {
+            // Path does not exist.
+            bGotTempDir = false;
+        }
+        else
+        {
+            // Make sure it is a directory and has Read & Write permissions.
+            if (((info.st_mode & S_IFDIR) == S_IFDIR) &&
+                ((info.st_mode & S_IREAD) == S_IREAD) &&
+                ((info.st_mode & S_IWRITE) == S_IWRITE))
+            {
+                bGotTempDir = true;
+            }
+            else
+            {
+                // It is either not a directory, or is missing read or write permissions.
+                bGotTempDir = false;
+            }
+        }
     }
 
-    return strTempDir;
+    return bGotTempDir;
 }
 
 bool ExecAndGrabOutput(const char* cmd, const bool& cancelSignal, std::string& cmdOutput)
@@ -88,21 +112,23 @@ bool ExecAndGrabOutput(const char* cmd, const bool& cancelSignal, std::string& c
 #endif
     tmpFileName << STR_TEMP_FILE_PREFIX << __rdtsc() << STR_TEMP_FILE_EXTENSION;
 
-    // Get Windows TEMP directory:
-    static const int bufferLength = 261;
-#ifdef _UNICODE
-    WCHAR stringBuffer[bufferLength];
-#else
-    char stringBuffer[bufferLength];
-#endif
-    DWORD result = GetEnvironmentVariable(TEXT("TEMP"), stringBuffer, bufferLength);
-    if (0 == result)
+    std::string tempDir;
+    if (!GetTempDirectory(tempDir))
     {
-        cmdOutput = STR_ERROR_FAILED_TO_GET_TEMP_DIR;
+        cmdOutput = STR_ERROR_UNABLE_TO_FIND_TEMP_DIRECTORY;
     }
     else
     {
-        tmpFilePath << stringBuffer << "/" << tmpFileName.str();
+#ifdef _UNICODE
+
+        int tempDirLen = MultiByteToWideChar(CP_ACP, 0, tempDir.c_str(), -1, NULL, 0);
+        WCHAR* pTempDirW = new WCHAR[tempDirLen];
+        MultiByteToWideChar(CP_ACP, 0, tempDir.c_str(), -1, pTempDirW, tempDirLen);
+        tmpFilePath << pTempDirW << "/" << tmpFileName.str();
+        delete[] pTempDirW;
+#else
+        tmpFilePath << tempDir << "/" << tmpFileName.str();
+#endif // !_UNICODE
 
         if (cmd != NULL)
         {

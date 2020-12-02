@@ -1,0 +1,27 @@
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+FILEFLAGSMASK   0X3FL
+FILEFLAGS       0L
+FILEOS          0X40004L
+FILETYPE        0X1
+FILESUBTYPE     0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Advanced Micro Devices, Inc."
+            VALUE "FileDescription", "Radeon Tools Download Assistant"
+            VALUE "OriginalFilename", "rtda" ".exe"
+            VALUE "LegalCopyright", "Copyright (C) 2018-2020 Advanced Micro Devices, Inc. All rights reserved."
+            VALUE "ProductName", "Radeon Tools Download Assistant"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 0x04B0
+    END
+END
+

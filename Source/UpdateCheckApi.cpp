@@ -1,6 +1,5 @@
 //==============================================================================
-// Copyright (c) 2018-2019 Advanced Micro Devices, Inc. All rights reserved.
-//
+/// Copyright (c) 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
 /// \author AMD Developer Tools Team
 /// \brief An API for checking for updates to an application.
 //==============================================================================
@@ -8,7 +7,16 @@
 #include "../Include/UpdateCheckApiStrings.h"
 #include "../Include/UpdateCheckApiUtils.h"
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4127)  // warning C4127: conditional expression is constant
+#endif
+
 #include "../Ext/json-3.2.0/json.hpp"
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 #include <assert.h>
 #include <sstream>
@@ -45,23 +53,37 @@ VersionInfo UpdateCheck::GetApiVersionInfo()
     return version;
 }
 
-/// Helper function to execute the AMDToolsDownloader.
-static bool ExecDownloader(const std::string& remoteURL, const std::string& localFile)
+/// Helper function to execute the Radeon Tools Download Assistant.
+static bool ExecDownloader(const std::string& remoteURL, const std::string& localFile, std::string& errorMessage)
 {
     bool wasLaunched = false;
 
-    bool cancelSignal = false;
-    std::string cmdOutput;
+    try
+    {
+        bool cancelSignal = false;
+        std::string cmdOutput;
 
-    // Setup the cmd line.
-    std::string cmdLine = STR_DOWNLOADER_APPLICATION;
-    cmdLine += " \"";
-    cmdLine += remoteURL;
-    cmdLine += "\" ";
-    cmdLine += localFile;
+        // Setup the cmd line.
+        std::string cmdLine = STR_DOWNLOADER_APPLICATION;
+        cmdLine += " \"";
+        cmdLine += remoteURL;
+        cmdLine += "\" ";
+        cmdLine += localFile;
 
-    // Download the file.
-    wasLaunched = UpdateCheckApiUtils::ExecAndGrabOutput(cmdLine.c_str(), cancelSignal, cmdOutput);
+        // Download the file.
+        wasLaunched = UpdateCheckApiUtils::ExecAndGrabOutput(cmdLine.c_str(), cancelSignal, cmdOutput);
+
+        if (!wasLaunched)
+        {
+            errorMessage.append(STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER);
+        }
+    }
+    catch(std::exception& e)
+    {
+        wasLaunched = false;
+        errorMessage.append(STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER_UNKNOWN_ERROR);
+        errorMessage.append(e.what());
+    }
 
     return wasLaunched;
 }
@@ -112,43 +134,49 @@ static bool DownloadJsonFile(const std::string jsonFileUrl, std::string& jsonStr
     bool isLoaded = true;
     jsonString.clear();
 
-    std::string localFile = UpdateCheckApiUtils::GetTempDirectory();
-    assert(localFile.size() != 0);
-    localFile += "/";
-
-    size_t posSlash = jsonFileUrl.find_last_of("/\\");
-    size_t posEnd = jsonFileUrl.find_last_of("?");
-    if (posEnd == std::string::npos)
-    {
-        posEnd = jsonFileUrl.size();
-    }
-    else
-    {
-        // Update the position to NOT include the character.
-        posEnd = posEnd - 1;
-    }
-
-    if (posSlash != std::string::npos)
-    {
-        localFile += jsonFileUrl.substr(posSlash+1, posEnd - posSlash);
-    }
-    else
-    {
-        localFile += jsonFileUrl.substr(0, posEnd);
-    }
-
-    // Attempt to delete the local file before downloading the new one.
-    std::remove(localFile.c_str());
-
-    // Download the JSON file.
-    if (!ExecDownloader(jsonFileUrl, localFile))
+    std::string localFile;
+    if (!UpdateCheckApiUtils::GetTempDirectory(localFile))
     {
         isLoaded = false;
-        errorMessage.append(STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER);
     }
     else
     {
-        isLoaded = LoadJsonFile(localFile, jsonString, errorMessage);
+        assert(localFile.size() != 0);
+        localFile += "/";
+
+        size_t posSlash = jsonFileUrl.find_last_of("/\\");
+        size_t posEnd = jsonFileUrl.find_last_of("?");
+        if (posEnd == std::string::npos)
+        {
+            posEnd = jsonFileUrl.size();
+        }
+        else
+        {
+            // Update the position to NOT include the character.
+            posEnd = posEnd - 1;
+        }
+
+        if (posSlash != std::string::npos)
+        {
+            localFile += jsonFileUrl.substr(posSlash + 1, posEnd - posSlash);
+        }
+        else
+        {
+            localFile += jsonFileUrl.substr(0, posEnd);
+        }
+
+        // Attempt to delete the local file before downloading the new one.
+        std::remove(localFile.c_str());
+
+        // Download the JSON file.
+        if (!ExecDownloader(jsonFileUrl, localFile, errorMessage))
+        {
+            isLoaded = false;
+        }
+        else
+        {
+            isLoaded = LoadJsonFile(localFile, jsonString, errorMessage);
+        }
     }
 
     return isLoaded;
@@ -225,47 +253,50 @@ static bool LoadJsonFromLatestRelease(const std::string jsonFileUrl, const std::
     bool wasLoaded = false;
 
     // Build a path to a temporary file.
-    std::string latestReleaseApiTempFile = UpdateCheckApiUtils::GetTempDirectory();
-    latestReleaseApiTempFile += "/";
-    latestReleaseApiTempFile += STR_LATEST_JSON_FILENAME;
-
-    if (!ExecDownloader(jsonFileUrl, latestReleaseApiTempFile))
+    std::string latestReleaseApiTempFile;
+    if (!UpdateCheckApiUtils::GetTempDirectory(latestReleaseApiTempFile))
     {
-        errorMessage.append(STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER);
+        errorMessage.append(STR_ERROR_UNABLE_TO_FIND_TEMP_DIRECTORY);
     }
     else
     {
-        try
+        latestReleaseApiTempFile += "/";
+        latestReleaseApiTempFile += STR_LATEST_JSON_FILENAME;
+
+        if (ExecDownloader(jsonFileUrl, latestReleaseApiTempFile, errorMessage))
         {
-            std::string latestReleaseJson;
-            if (LoadJsonFile(latestReleaseApiTempFile, latestReleaseJson, errorMessage))
+            try
             {
-                // Parsing the json can throw an exception if the string is
-                // not valid json. This can happen in networks that limit
-                // internet access, and result in downloading an html page.
-                json latestReleaseJsonDoc = json::parse(latestReleaseJson);
-
-                std::string versionFileUrl;
-                if (FindAssetDownloadUrl(latestReleaseJsonDoc, jsonFileName, versionFileUrl, errorMessage))
+                std::string latestReleaseJson;
+                if (LoadJsonFile(latestReleaseApiTempFile, latestReleaseJson, errorMessage))
                 {
-                    wasLoaded = DownloadJsonFile(versionFileUrl, jsonString, errorMessage);
-                }
-                else
-                {
-                    // Failed to find the Asset, so check for a "message" tag which may indicate an error from the GitHub Release API.
-                    auto messageElement = latestReleaseJsonDoc.find(TAG_MESSAGE);
+                    // Parsing the json can throw an exception if the string is
+                    // not valid json. This can happen in networks that limit
+                    // internet access, and result in downloading an html page.
+                    json latestReleaseJsonDoc = json::parse(latestReleaseJson);
 
-                    if (messageElement != latestReleaseJsonDoc.end())
+                    std::string versionFileUrl;
+                    if (FindAssetDownloadUrl(latestReleaseJsonDoc, jsonFileName, versionFileUrl, errorMessage))
                     {
-                        errorMessage.append(messageElement->get<std::string>().c_str());
+                        wasLoaded = DownloadJsonFile(versionFileUrl, jsonString, errorMessage);
+                    }
+                    else
+                    {
+                        // Failed to find the Asset, so check for a "message" tag which may indicate an error from the GitHub Release API.
+                        auto messageElement = latestReleaseJsonDoc.find(TAG_MESSAGE);
+
+                        if (messageElement != latestReleaseJsonDoc.end())
+                        {
+                            errorMessage.append(messageElement->get<std::string>().c_str());
+                        }
                     }
                 }
             }
-        }
-        catch (...)
-        {
-            wasLoaded = false;
-            errorMessage.append(STR_ERROR_FAILED_TO_LOAD_LATEST_RELEASE_INFORMATION);
+            catch (...)
+            {
+                wasLoaded = false;
+                errorMessage.append(STR_ERROR_FAILED_TO_LOAD_LATEST_RELEASE_INFORMATION);
+            }
         }
     }
 
@@ -1317,12 +1348,11 @@ static bool ParseJsonString(const std::string& jsonString, UpdateInfo& updateInf
             errorMessage.append(STR_ERROR_UNSUPPORTED_SCHEMAVERION);
         }
     }
-    catch(std::exception e)
+    catch(std::exception& e)
     {
-        UNREFERENCED_PARAMETER(e);
-
         isParsed = false;
         errorMessage.append(STR_ERROR_FAILED_TO_PARSE_VERSION_FILE);
+        errorMessage.append(e.what());
     }
 
     return isParsed;
@@ -1369,79 +1399,88 @@ bool UpdateCheck::CheckForUpdates(const UpdateCheck::VersionInfo& productVersion
     updateInfo.m_isUpdateAvailable = false;
     std::string loadedJsonContents;
 
-    // Confirm a path to a JSON file was provided.
-    bool isJson = (jsonFileName.rfind(STR_JSON_FILE_EXTENSION) != std::string::npos);
-    assert(isJson);
-
-    if (!isJson)
+    try
     {
-        // The provided URL doesn't point to a supported file type.
-        checkedForUpdate = false;
-        errorMessage.append(STR_ERROR_URL_MUST_POINT_TO_A_JSON_FILE);
-    }
-    else
-    {
-        if (latestReleaseUrl.find(STR_GITHUB_RELEASES_LATEST) != std::string::npos)
-        {
-            // Get JSON file from the latest release (using GitHub Release API).
-            checkedForUpdate = LoadJsonFromLatestRelease(latestReleaseUrl, jsonFileName, loadedJsonContents, errorMessage);
-        }
-        else if (latestReleaseUrl.find(STR_HTTP_PREFIX) == 0)
-        {
-            // Attempt to download JSON file contents.
-            std::string fullUrl;
+        // Confirm a path to a JSON file was provided.
+        bool isJson = (jsonFileName.rfind(STR_JSON_FILE_EXTENSION) != std::string::npos);
+        assert(isJson);
 
-            // If a filename was included in the parameters, append that to the URL.
-            if (jsonFileName.empty())
-            {
-                fullUrl = latestReleaseUrl;
-            }
-            else
-            {
-                fullUrl = latestReleaseUrl + "/" + jsonFileName;
-            }
-
-            checkedForUpdate = DownloadJsonFile(fullUrl, loadedJsonContents, errorMessage);
+        if (!isJson)
+        {
+            // The provided URL doesn't point to a supported file type.
+            checkedForUpdate = false;
+            errorMessage.append(STR_ERROR_URL_MUST_POINT_TO_A_JSON_FILE);
         }
         else
         {
-            // Attempt to load the JSON file from disk.
-            std::string fullPath;
-            if (latestReleaseUrl.empty())
+            if (latestReleaseUrl.find(STR_GITHUB_RELEASES_LATEST) != std::string::npos)
             {
-                fullPath = jsonFileName;
+                // Get JSON file from the latest release (using GitHub Release API).
+                checkedForUpdate = LoadJsonFromLatestRelease(latestReleaseUrl, jsonFileName, loadedJsonContents, errorMessage);
+            }
+            else if (latestReleaseUrl.find(STR_HTTP_PREFIX) == 0)
+            {
+                // Attempt to download JSON file contents.
+                std::string fullUrl;
+
+                // If a filename was included in the parameters, append that to the URL.
+                if (jsonFileName.empty())
+                {
+                    fullUrl = latestReleaseUrl;
+                }
+                else
+                {
+                    fullUrl = latestReleaseUrl + "/" + jsonFileName;
+                }
+
+                checkedForUpdate = DownloadJsonFile(fullUrl, loadedJsonContents, errorMessage);
             }
             else
             {
-                fullPath = latestReleaseUrl + "/" + jsonFileName;
+                // Attempt to load the JSON file from disk.
+                std::string fullPath;
+                if (latestReleaseUrl.empty())
+                {
+                    fullPath = jsonFileName;
+                }
+                else
+                {
+                    fullPath = latestReleaseUrl + "/" + jsonFileName;
+                }
+
+                checkedForUpdate = LoadJsonFile(fullPath, loadedJsonContents, errorMessage);
             }
-
-            checkedForUpdate = LoadJsonFile(fullPath, loadedJsonContents, errorMessage);
-        }
-
-        if (checkedForUpdate)
-        {
-            // Parse the JSON string to populate the updateInfo struct.
-            checkedForUpdate = ParseJsonString(loadedJsonContents, updateInfo, errorMessage);
 
             if (checkedForUpdate)
             {
-                bool hasCompatibleUpdate = FilterToCurrentPlatform(updateInfo);
+                // Parse the JSON string to populate the updateInfo struct.
+                checkedForUpdate = ParseJsonString(loadedJsonContents, updateInfo, errorMessage);
 
-                if (hasCompatibleUpdate)
+                if (checkedForUpdate)
                 {
-                    // Check to see if a version from the update is newer than the current product version.
-                    for (auto releaseIter = updateInfo.m_releases.begin(); releaseIter != updateInfo.m_releases.end(); ++releaseIter)
+                    bool hasCompatibleUpdate = FilterToCurrentPlatform(updateInfo);
+
+                    if (hasCompatibleUpdate)
                     {
-                        updateInfo.m_isUpdateAvailable = (releaseIter->m_version.Compare(productVersion) == NEWER);
-                        if (updateInfo.m_isUpdateAvailable)
+                        // Check to see if a version from the update is newer than the current product version.
+                        for (auto releaseIter = updateInfo.m_releases.begin(); releaseIter != updateInfo.m_releases.end(); ++releaseIter)
                         {
-                            break;
+                            updateInfo.m_isUpdateAvailable = (releaseIter->m_version.Compare(productVersion) == NEWER);
+                            if (updateInfo.m_isUpdateAvailable)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
+    }
+    catch (std::exception& e)
+    {
+        checkedForUpdate = false;
+        errorMessage.append(STR_ERROR_UNKNOWN_ERROR_OCCURRED);
+        errorMessage.append(e.what());
     }
 
     return checkedForUpdate;

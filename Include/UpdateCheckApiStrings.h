@@ -1,9 +1,7 @@
 //==============================================================================
-// Copyright (c) 2018-2019 Advanced Micro Devices, Inc. All rights reserved.
+/// Copyright (c) 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
 /// \author AMD Developer Tools Team
-//
 /// \file
-//
 /// \brief Constant strings used by the UpdateCheckApi.
 //==============================================================================
 #ifndef _UPDATECHECKAPI_STRINGS_H_
@@ -92,9 +90,9 @@ const char* const STR_PACKAGETYPE_LINUX_DEBIAN = "Linux_Debian";
 
 // Name of the downloader application.
 #ifdef WIN32
-const char* const STR_DOWNLOADER_APPLICATION = "AMDToolsDownloader.exe";
+const char* const STR_DOWNLOADER_APPLICATION = "rtda.exe";
 #elif defined(__linux__) || defined(__APPLE__)
-const char* const STR_DOWNLOADER_APPLICATION = "./AMDToolsDownloader";
+const char* const STR_DOWNLOADER_APPLICATION = "./rtda";
 #endif // __linux__ || __APPLE__
 
 // Strings related to the Github Release API.
@@ -111,7 +109,10 @@ const char* const STR_ERROR_DOWNLOAD_URL_NOT_FOUND_IN_ASSET = "The download url 
 
 // High Level Error Messages.
 const char* const STR_ERROR_URL_MUST_POINT_TO_A_JSON_FILE = "URL must point to a JSON file.";
-const char* const STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER = "Failed to launch the AMD Tools Downloader.";
+const char* const STR_ERROR_UNABLE_TO_FIND_TEMP_DIRECTORY = "Unable to find temp directory.";
+const char* const STR_ERROR_UNKNOWN_ERROR_OCCURRED = "An unknown error occurred: ";
+const char* const STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER = "Failed to launch the Radeon Tools Download Assistant (rtda).";
+const char* const STR_ERROR_FAILED_TO_LAUNCH_VERSION_FILE_DOWNLOADER_UNKNOWN_ERROR = "Failed to launch the Radeon Tools Download Assistant (rtda) due to an unknown error: ";
 const char* const STR_ERROR_FAILED_TO_LOAD_LATEST_RELEASE_INFORMATION = "Failed to load latest release information.";
 const char* const STR_ERROR_FAILED_TO_DOWNLOAD_VERSION_FILE = "Failed to download version file.";
 const char* const STR_ERROR_FAILED_TO_LOAD_VERSION_FILE = "Failed to load version file.";

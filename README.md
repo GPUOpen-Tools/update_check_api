@@ -18,11 +18,19 @@ Additional CMake variables are also defined to utilize the Qt widgets:
 * UPDATECHECKAPI_QT_INC (header files which reference Qt components)
 * UPDATECHECKAPI_QT_UI (ui files for the new widgets)
 
-Also, the UpdateCheckAPI utilizes an executabled named AMDToolsDownloader to download files from the internet. This needs to copied into the applications working directory. To simplify copying the executable, its platform-specific path is cached in the CMake variable:
+Also, the UpdateCheckAPI utilizes an executabled named rtda to download files from the internet. This needs to copied into the applications working directory. To simplify copying the executable, its platform-specific path is cached in the CMake variable:
 
-* AMDTOOLSDOWNLOADER_PATH (Path to the platform-specific AMDToolsDownloader executable)
+* RTDA_PATH (Path to the platform-specific rtda executable)
 
 ## Release Notes:
+
+Version 1.1.0
+* Rename AMDToolsDownloader to rtda and remove logo.
+* Fix compiler warning on Windows and ubuntu 20.04.
+
+Version 1.0.1
+* Fix crash caused by parse error on restricted networks.
+* Add GUI option for hiding release tags.
 
 Version 1.0
 * Initial release
