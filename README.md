@@ -23,6 +23,9 @@ Also, the UpdateCheckAPI utilizes an executabled named rtda to download files fr
 * RTDA_PATH (Path to the platform-specific rtda executable)
 
 ## Release Notes:
+Version 2.0.0
+* Updated all code and filenames to follow Google C++ Style Guide
+* Updated to json.hpp version 3.9.1
 
 Version 1.1.0
 * Rename AMDToolsDownloader to rtda and remove logo.
