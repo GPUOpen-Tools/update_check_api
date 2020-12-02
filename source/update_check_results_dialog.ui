@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>UpdateCheckResultsDialog</class>
- <widget class="QDialog" name="UpdateCheckResultsDialog">
+ <widget class="QDialog" name="update_check_results_dialog_">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,16 +13,16 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="vertical_layout_2_">
    <item>
-    <widget class="QTextBrowser" name="textBrowser">
+    <widget class="QTextBrowser" name="text_browser_">
      <property name="openExternalLinks">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="button_box_">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -38,7 +38,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>UpdateCheckResultsDialog</receiver>
+   <receiver>update_check_results_dialog_</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -54,7 +54,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>UpdateCheckResultsDialog</receiver>
+   <receiver>update_check_results_dialog_</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
