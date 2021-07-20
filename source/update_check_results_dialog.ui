@@ -36,7 +36,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>button_box_</sender>
    <signal>accepted()</signal>
    <receiver>update_check_results_dialog_</receiver>
    <slot>accept()</slot>
@@ -52,7 +52,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>button_box_</sender>
    <signal>rejected()</signal>
    <receiver>update_check_results_dialog_</receiver>
    <slot>reject()</slot>
