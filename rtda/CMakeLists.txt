@@ -3,7 +3,7 @@
 #=================================================================
 # CMakeList.txt : CMake project to compile radeon_tools_download_assistant.go
 #
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.10)
 
 # Make a target that other projects can add as a dependency.
 add_custom_target(rtda)

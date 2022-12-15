@@ -127,7 +127,15 @@ void UpdateCheckResultsDialog::SetResults(const UpdateCheck::UpdateInfo& update_
                         update_result_html.append(kStringHtmlAHrefEndTitleStart);
                         update_result_html.append(iter->url.c_str());
                         update_result_html.append(kStringHtmlAHrefEndTitleEnd);
-                        update_result_html.append(UpdateCheck::PackageTypeToString(iter->package_type).c_str());
+
+                        // If the package_name is not blank, use the package name.
+                        std::string value = UpdateCheck::PackageTypeToString(iter->package_type).c_str();
+                        if (!iter->package_name.empty())
+                        {
+                            value = iter->package_name;
+                        }
+                        update_result_html.append(value.c_str());
+
                         update_result_html.append(kStringHtmlAClose);
                         update_result_html.append("]");
                     }

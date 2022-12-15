@@ -6,7 +6,7 @@
 # code that other projects can include, it is not a buildable project on its
 # own.
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.10)
 
 # Root to the UpdateCheckApi directory.
 set (UPDATECHECKAPI_DIR ${CMAKE_CURRENT_SOURCE_DIR})

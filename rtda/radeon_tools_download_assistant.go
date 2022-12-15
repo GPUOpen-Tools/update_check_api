@@ -8,9 +8,19 @@ import (
     "os"
 )
 
+var rtda_version = "1.0.1"
+var update_check_api_version = "2.1.0"
+
 func main() {
 
     argCount := len(os.Args[1:])
+
+    if (argCount == 1 && os.Args[1] == "--version") {
+        fmt.Printf("RTDA version: %s\n", rtda_version)
+        fmt.Printf("UpdateCheckAPI version: %s\n", update_check_api_version)
+	os.Exit(0)
+    }
+
     if (argCount != 2) {
         fmt.Printf("Usage: rtda url local_path\n")
         fmt.Printf("\turl - The url to the file to download\n")

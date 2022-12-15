@@ -30,6 +30,7 @@ const char* const kStringJsonFileExtension = ".json";
 #define RELEASETAGS "ReleaseTags"
 #define RELEASETITLE "ReleaseTitle"
 #define RELEASETYPE "ReleaseType"
+#define DOWNLOADLINKS_PACKAGENAME "PackageName"
 
 // JSON tags related to schema 1.5
 #define RELEASEVERSION "ReleaseVersion"

@@ -1,6 +1,6 @@
 1 VERSIONINFO
-FILEVERSION     1,0,0,0
-PRODUCTVERSION  1,0,0,0
+FILEVERSION     1,0,1,0
+PRODUCTVERSION  1,0,1,0
 FILEFLAGSMASK   0X3FL
 FILEFLAGS       0L
 FILEOS          0X40004L
@@ -14,9 +14,9 @@ BEGIN
             VALUE "CompanyName", "Advanced Micro Devices, Inc."
             VALUE "FileDescription", "Radeon Tools Download Assistant"
             VALUE "OriginalFilename", "rtda" ".exe"
-            VALUE "LegalCopyright", "Copyright (C) 2018-2020 Advanced Micro Devices, Inc. All rights reserved."
+            VALUE "LegalCopyright", "Copyright (C) 2018-2021 Advanced Micro Devices, Inc. All rights reserved."
             VALUE "ProductName", "Radeon Tools Download Assistant"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", "1.0.1.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -1,5 +1,5 @@
 //==============================================================================
-/// Copyright (c) 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
+/// Copyright (c) 2018-2022 Advanced Micro Devices, Inc. All rights reserved.
 /// \author AMD Developer Tools Team
 /// \file
 /// \brief An interface to allow applications to check for updated versions.
@@ -12,7 +12,7 @@
 
 // Versioning information of the UpdateCheckAPI.
 #define UPDATECHECKAPI_MAJOR 2
-#define UPDATECHECKAPI_MINOR 0
+#define UPDATECHECKAPI_MINOR 1
 #define UPDATECHECKAPI_PATCH 0
 #define UPDATECHECKAPI_BUILD 0
 
@@ -99,6 +99,9 @@ namespace UpdateCheck
 
         /// A value describing the kind of archive/installer that url points to.
         PackageType package_type;
+
+        /// A value describing the name of the package.
+        std::string package_name;
     };
 
     /// A structure containing all the data pertaining to a specific release.

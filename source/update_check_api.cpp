@@ -1319,6 +1319,7 @@ static bool ParseJsonSchema_1_6(json& json_doc, UpdateInfo& update_info, std::st
                         {
                             auto url_iter          = download_link_iter->find(DOWNLOADLINKS_URL);
                             auto package_type_iter = download_link_iter->find(DOWNLOADLINKS_PACKAGETYPE);
+                            auto package_name_iter = download_link_iter->find(DOWNLOADLINKS_PACKAGENAME);
                             if (url_iter == download_link_iter->end())
                             {
                                 is_parsed = false;
@@ -1341,7 +1342,15 @@ static bool ParseJsonSchema_1_6(json& json_doc, UpdateInfo& update_info, std::st
                                 }
                                 else
                                 {
+                                    // Extract the url.
                                     download_link.url = (*download_link_iter)[DOWNLOADLINKS_URL].get<std::string>();
+
+                                    // Extract the package name.
+                                    if (package_name_iter != download_link_iter->end())
+                                    {
+                                        download_link.package_name = package_name_iter->get<std::string>();
+                                    }
+
                                     release_info.download_links.push_back(download_link);
                                 }
                             }

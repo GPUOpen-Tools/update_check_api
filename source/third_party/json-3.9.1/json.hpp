@@ -2682,7 +2682,6 @@ template<typename T>
 using uncvref_t = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
 // implementation of C++14 index_sequence and affiliates
-// source: https://stackoverflow.com/a/32223343
 template<std::size_t... Ints>
 struct index_sequence
 {
@@ -3106,8 +3105,6 @@ struct is_iterator_traits<iterator_traits<T>>
         is_detected<iterator_category_t, traits>::value &&
         is_detected<reference_t, traits>::value;
 };
-
-// source: https://stackoverflow.com/a/37193089/4116453
 
 template<typename T, typename = void>
 struct is_complete_type : std::false_type {};
@@ -7675,8 +7672,6 @@ enum class cbor_tag_handler_t
 @brief determine system byte order
 
 @return true if and only if system's byte order is little endian
-
-@note from https://stackoverflow.com/a/1001328/266378
 */
 static inline bool little_endianess(int num = 1) noexcept
 {
@@ -16641,10 +16636,6 @@ relationship:
 - If `m_type == value_t::array`, then `m_value.array != nullptr`.
 - If `m_type == value_t::string`, then `m_value.string != nullptr`.
 The invariants are checked by member function assert_invariant().
-
-@internal
-@note ObjectType trick from https://stackoverflow.com/a/9860911
-@endinternal
 
 @see [RFC 7159: The JavaScript Object Notation (JSON) Data Interchange
 Format](http://rfc7159.net/rfc7159)
