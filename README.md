@@ -26,6 +26,7 @@ Version 2.1.1
 Version 2.1.0
 * An optional PackageName tag has been added to the DownloadLinks which allows for customizing the text that will appear in the UI in place of the package type.
 * RTDA now has a --version cmd line option to report both the RTDA and UpdateCheckAPI version numbers.
+* Add RTDA binaries to git lfs.
 
 Version 2.0.1
 * Fix the close button on Update Check Results dialog.
