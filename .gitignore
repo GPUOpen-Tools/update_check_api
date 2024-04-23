@@ -1,5 +1,7 @@
-Build/CMake
-Build/Windows
-Build/Linux
-Output
+*~
+*.pyc
+*.orig
+*.bak
+*.swp
+__pycache__/
 .vscode

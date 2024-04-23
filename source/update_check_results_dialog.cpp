@@ -1,8 +1,8 @@
 //==============================================================================
-/// Copyright (c) 2019-2020 Advanced Micro Devices, Inc. All rights reserved.
-/// \author AMD Developer Tools Team
-/// \file
-/// \brief A Qt Dialog to display the results of the UpdateCheckApi.
+/// Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// @author AMD Developer Tools Team
+/// @file
+/// @brief A Qt Dialog to display the results of the UpdateCheckApi.
 //==============================================================================
 #include "update_check_results_dialog.h"
 #include "ui_update_check_results_dialog.h"
@@ -32,6 +32,9 @@ static const char* kStringReleaseDate                    = "Release date: ";
 static const char* kStringTags                           = "Tags: ";
 static const char* kStringTagsSeparator                  = ", ";
 
+static const char* kTextBrowserStyleSheet =
+    "QTextBrowser { background: rgba(255,255,255,0%); } QToolTip { background-color: rgb(248, 248, 220); padding: 1px; }";
+
 UpdateCheckResultsDialog::UpdateCheckResultsDialog(QWidget* parent)
     : QDialog(parent)
     , ui_(new Ui::UpdateCheckResultsDialog)
@@ -43,7 +46,7 @@ UpdateCheckResultsDialog::UpdateCheckResultsDialog(QWidget* parent)
 
     // Make the background of the textbrowser transparent.
     ui_->text_browser_->setAttribute(Qt::WA_TranslucentBackground);
-    ui_->text_browser_->setStyleSheet("background: rgba(255,255,255,0%)");
+    ui_->text_browser_->setStyleSheet(kTextBrowserStyleSheet);
 
     setWindowTitle(kStringDialogTitle);
 }

@@ -1,8 +1,8 @@
 //=============================================================================
-/// Copyright (c) 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
-/// \author AMD Developer Tools Team
-/// \file
-/// \brief Windows implementation of the UpdateCheckApi Utilities.
+/// Copyright (c) 2018-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// @author AMD Developer Tools Team
+/// @file
+/// @brief Windows implementation of the UpdateCheckApi Utilities.
 //=============================================================================
 
 #include "update_check_api_utils.h"

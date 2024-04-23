@@ -1,8 +1,8 @@
 //==============================================================================
-/// Copyright (c) 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
-/// \author AMD Developer Tools Team
-/// \file
-/// \brief An API for checking for updates to an application.
+/// Copyright (c) 2018-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// @author AMD Developer Tools Team
+/// @file
+/// @brief An API for checking for updates to an application.
 //==============================================================================
 #include "update_check_api.h"
 #include "update_check_api_strings.h"
@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <sstream>
 #include <fstream>
+#include <cstdlib>
 
 #ifdef WIN32
 #define updater_sscanf sscanf_s
@@ -54,11 +55,13 @@ VersionInfo UpdateCheck::GetApiVersionInfo()
     return version;
 }
 
-/// \brief Helper function to execute the Radeon Tools Download Assistant.
-/// \param [in] remote_url The URL of the file to download.
-/// \param [in] local_file The local file that it should be downloaded as.
-/// \param [out] error_message Any error messages that occurred.
-/// \return True if the file was successfully downloaded; false otherwise.
+/// @brief Helper function to execute the Radeon Tools Download Assistant.
+///
+/// @param [in]  remote_url    The URL of the file to download.
+/// @param [in]  local_file    The local file that it should be downloaded as.
+/// @param [out] error_message Any error messages that occurred.
+///
+/// @return true if the file was successfully downloaded; false otherwise.
 static bool ExecDownloader(const std::string& remote_url, const std::string& local_file, std::string& error_message)
 {
     bool was_launched = false;
@@ -93,13 +96,14 @@ static bool ExecDownloader(const std::string& remote_url, const std::string& loc
     return was_launched;
 }
 
-/// \brief Helper function to load a json file from disk.
+/// @brief Helper function to load a json file from disk.
 ///
-/// \param [in] json_file_path Path to the local JSON file.
-/// \param [out] json_string The contents of the JSON file.
-/// \param [out] error_message Any error messages that occurred.
-/// \retval True on success; json_string will have the contents of the file at json_file_url.
-/// \retval False on failure; json_string will be unchanged.
+/// @param [in]  json_file_path Path to the local JSON file.
+/// @param [out] json_string    The contents of the JSON file.
+/// @param [out] error_message  Any error messages that occurred.
+///
+/// @retval true on success; json_string will have the contents of the file at json_file_url.
+/// @retval false on failure; json_string will be unchanged.
 static bool LoadJsonFile(const std::string& json_file_path, std::string& json_string, std::string& error_message)
 {
     bool is_loaded = true;
@@ -134,13 +138,14 @@ static bool LoadJsonFile(const std::string& json_file_path, std::string& json_st
     return is_loaded;
 }
 
-/// \brief Helper function to download JSON file.
+/// @brief Helper function to download JSON file.
 ///
-/// \param [in] json_file_url URL of the JSON file to download.
-/// \param [out] json_string The contents of the JSON file.
-/// \param [out] error_message Any error messages that occurred.
-/// \return true on success; json_string will have the contents of the file at json_file_url.
-/// \return false on failure; json_string will be unchanged.
+/// @param [in]  json_file_url  URL of the JSON file to download.
+/// @param [out] json_string    The contents of the JSON file.
+/// @param [out] error_message  Any error messages that occurred.
+///
+/// @retval true on success; json_string will have the contents of the file at json_file_url.
+/// @retval false on failure; json_string will be unchanged.
 static bool DownloadJsonFile(const std::string json_file_url, std::string& json_string, std::string& error_message)
 {
     bool is_loaded = true;
@@ -195,12 +200,13 @@ static bool DownloadJsonFile(const std::string json_file_url, std::string& json_
     return is_loaded;
 }
 
-/// \brief Given a JSON list of release assets, finds the named asset and returns the associated JSON element.
+/// @brief Given a JSON list of release assets, finds the named asset and returns the associated JSON element.
 ///
-/// \param [in] asset_list The "assets" element from a JSON file.
-/// \param [in] asset_name A specific asset name to find.
-/// \param [out] asset_element The associated asset element if the asset name is found.
-/// \return True if the asset name was found in the asset list, false otherwise.
+/// @param [in]  asset_list    The "assets" element from a JSON file.
+/// @param [in]  asset_name    A specific asset name to find.
+/// @param [out] asset_element The associated asset element if the asset name is found.
+///
+/// @return true if the asset name was found in the asset list, false otherwise.
 static bool FindAssetByName(json& asset_list, const std::string& asset_name, json& asset_element)
 {
     bool was_asset_found = false;
@@ -224,13 +230,14 @@ static bool FindAssetByName(json& asset_list, const std::string& asset_name, jso
     return was_asset_found;
 }
 
-/// \brief Finds the asset based on its filename and returns the URL from which to download the asset.
+/// @brief Finds the asset based on its filename and returns the URL from which to download the asset.
 ///
-/// \param [in] latest_release The latest release JSON element.
-/// \param [in] asset_name The asset name to find in the latest release element.
-/// \param [out] asset_download_url The download URL for the specified asset.
-/// \param [out] error_message Any error messages that occurred.
-/// \return True if the asset and download URL could be found; false otherwise.
+/// @param [in]  latest_release     The latest release JSON element.
+/// @param [in]  asset_name         The asset name to find in the latest release element.
+/// @param [out] asset_download_url The download URL for the specified asset.
+/// @param [out] error_message      Any error messages that occurred.
+///
+/// @return true if the asset and download URL could be found; false otherwise.
 static bool FindAssetDownloadUrl(json& latest_release, const std::string& asset_name, std::string& asset_download_url, std::string& error_message)
 {
     bool has_asset_download_url = false;
@@ -269,14 +276,15 @@ static bool FindAssetDownloadUrl(json& latest_release, const std::string& asset_
     return has_asset_download_url;
 }
 
-/// \brief Helper function to load JSON file from the latest release of a GitHub Repository.
+/// @brief Helper function to load JSON file from the latest release of a GitHub Repository.
 ///
-/// \param [in] json_file_url URL of the JSON file to download.
-/// \param [in] json_file_name The local filename to save the downloaded JSON file.
-/// \param [out] json_string The contents of the downloaded JSON file.
-/// \param [out] error_message Any error messages that occurred.
-/// \retval true on success; json_string will have the contents of the file at json_file_url.
-/// \retval false on failure; json_string will be unchanged.
+/// @param [in]  json_file_url  URL of the JSON file to download.
+/// @param [in]  json_file_name The local filename to save the downloaded JSON file.
+/// @param [out] json_string    The contents of the downloaded JSON file.
+/// @param [out] error_message  Any error messages that occurred.
+///
+/// @retval true on success; json_string will have the contents of the file at json_file_url.
+/// @retval false on failure; json_string will be unchanged.
 static bool LoadJsonFromLatestRelease(const std::string json_file_url, const std::string json_file_name, std::string& json_string, std::string& error_message)
 {
     bool was_loaded = false;
@@ -337,9 +345,9 @@ static bool LoadJsonFromLatestRelease(const std::string json_file_url, const std
     return was_loaded;
 }
 
-/// \brief Convert VersionInfo to a string.
+/// @brief Convert VersionInfo to a string.
 ///
-/// \return The stringified version information.
+/// @return The stringified version information.
 std::string VersionInfo::ToString() const
 {
     std::stringstream version_string;
@@ -347,12 +355,13 @@ std::string VersionInfo::ToString() const
     return version_string.str();
 }
 
-/// \brief Compare 'this' version to the supplied version.
+/// @brief Compare 'this' version to the supplied version.
 ///
-/// \param other_version The version to compare against.
-/// \retval NEWER if 'this' version is newer than the other_version.
-/// \retval OLDER if 'this' version is older than the other_version.
-/// \retval EQUAL if 'this' version is equal to the other_version.
+/// @param [in] other_version The version to compare against.
+///
+/// @retval NEWER if 'this' version is newer than the other_version.
+/// @retval OLDER if 'this' version is older than the other_version.
+/// @retval EQUAL if 'this' version is equal to the other_version.
 int VersionInfo::Compare(const VersionInfo& other_version) const
 {
     int comparison = 0;
@@ -411,9 +420,13 @@ int VersionInfo::Compare(const VersionInfo& other_version) const
     return comparison;
 }
 
-/// \brief Split the version string from Schema 1.3 into Major, Minor, Patch, and Build numbers.
+/// @brief Split the version string from Schema 1.3 into Major, Minor, Patch, and Build numbers.
 ///
-/// \param [out] error_message Any error messages that occurred.
+/// @param [in]  version       The version string.
+/// @param [out] version_info  The version information.
+/// @param [out] error_message Any error messages that occurred.
+///
+/// @return true if version info is valid; false otherwise.
 static bool SplitVersionString_1_3(const std::string& version, VersionInfo& version_info, std::string& error_message)
 {
     bool is_valid = true;
@@ -447,13 +460,14 @@ static bool SplitVersionString_1_3(const std::string& version, VersionInfo& vers
     return is_valid;
 }
 
-/// \brief Split the version string from Schema 1.5 into Major, Minor, Patch, and Build numbers.
+/// @brief Split the version string from Schema 1.5 into Major, Minor, Patch, and Build numbers.
 ///
-/// \param json_doc
-/// \param version_info
-/// \param [out] error_message Any error messages that occurred.
-/// \retval True on success
-/// \retval False on error, and error_message will be appended to.
+/// @param [in]  json_doc      The json document.
+/// @param [out] version_info  The version information.
+/// @param [out] error_message Any error messages that occurred.
+///
+/// @retval true on success
+/// @retval false on error, and error_message will be appended to.
 static bool SplitVersionString_1_5(json& json_doc, VersionInfo& version_info, std::string& error_message)
 {
     bool is_valid = true;
@@ -496,13 +510,14 @@ static bool SplitVersionString_1_5(json& json_doc, VersionInfo& version_info, st
     return is_valid;
 }
 
-/// \brief Translate the package string to the corresponding UpdatePackageType.
+/// @brief Translate the package string to the corresponding UpdatePackageType.
 ///
-/// \param package_string
-/// \param platform
-/// \param package_type
-/// \return True if the package_string is recognized and a valid UpdatePackageType is set.
-/// \return False if the package_string is not recognized.
+/// @param [in]  package_string The package string.
+/// @param [out] platform       The platform.
+/// @param [out] package_type   The package type.
+///
+/// @retval true if the package_string is recognized and a valid UpdatePackageType is set.
+/// @retval false if the package_string is not recognized.
 static bool GetPackageType_1_3(const std::string& package_string, TargetPlatform& platform, PackageType& package_type)
 {
     bool is_known_type = true;
@@ -582,12 +597,13 @@ struct UpdateInfo_1_5
     std::vector<InfoPageLink> info_links;
 };
 
-/// Parse JSON string for Schema 1.3 directly into the structures for schema 1.5.
+/// @brief Parse JSON string for Schema 1.3 directly into the structures for schema 1.5.
 ///
-/// \param json_document
-/// \param update_info
-/// \param [out] error_message Any error messages that occurred.
-/// \return
+/// @param [in]  json_document The json document.
+/// @param [out] update_info   The update information structure for schema 1.5.
+/// @param [out] error_message Any error messages that occurred.
+///
+/// @return true if json document is parsed successfully; false otherwise.
 static bool ParseJsonSchema_1_3(json& json_document, UpdateInfo_1_5& update_info, std::string& error_message)
 {
     bool is_parsed = true;
@@ -722,12 +738,13 @@ static bool ParseJsonSchema_1_3(json& json_document, UpdateInfo_1_5& update_info
     return is_parsed;
 }
 
-/// \brief Translate the package string to the corresponding UpdatePackageType.
+/// @brief Translate the package string to the corresponding UpdatePackageType.
 ///
-/// \param package_string
-/// \param package_type
-/// \retval True if the package_string is recognized and a valid UpdatePackageType is set.
-/// \retval False if the package_string is not recognized.
+/// @param [in]  package_string The package string.
+/// @param [out] package_type   The package type.
+///
+/// @retval true if the package_string is recognized and a valid UpdatePackageType is set.
+/// @retval false if the package_string is not recognized.
 static bool GetPackageType_1_5(const std::string& package_string, PackageType& package_type)
 {
     bool is_known_type = true;
@@ -761,12 +778,13 @@ static bool GetPackageType_1_5(const std::string& package_string, PackageType& p
     return is_known_type;
 }
 
-/// \brief Translate the release_type_string to the corresponding ReleaseType enum value.
+/// @brief Translate the release_type_string to the corresponding ReleaseType enum value.
 ///
-/// \param release_type_string
-/// \param release_type
-/// \return True if the release_type_string is recognized and a valid UpdatePackageType is set.
-/// \return False if the release_type_string is not recognized.
+/// @param [in]  release_type_string The release string.
+/// @param [out] release_type        The release type.
+///
+/// @return true if the release_type_string is recognized and a valid UpdatePackageType is set.
+/// @return false if the release_type_string is not recognized.
 static bool GetReleaseType_1_5(const std::string& release_type_string, ReleaseType& release_type)
 {
     bool is_known_type = true;
@@ -800,13 +818,14 @@ static bool GetReleaseType_1_5(const std::string& release_type_string, ReleaseTy
     return is_known_type;
 }
 
-/// \brief Translate the target platforms JSON object to the corresponding TargetPlatforms list.
+/// @brief Translate the target platforms JSON object to the corresponding TargetPlatforms list.
 ///
-/// \param target_platforms_json
-/// \param platforms
-/// \param [out] error_message Any error messsages that occurred.
-/// \retval True if all the platforms are recognized.
-/// \retval False if any platform is not recognized.
+/// @param [in]  target_platforms_json The target platform json document.
+/// @param [out] platforms             The target platform.
+/// @param [out] error_message         Any error messsages that occurred.
+///
+/// @retval true if all the platforms are recognized.
+/// @retval false if any platform is not recognized.
 static bool GetTargetPlatform_1_5(json& target_platforms_json, std::vector<TargetPlatform>& platforms, std::string& error_message)
 {
     bool is_known_type = false;
@@ -853,8 +872,13 @@ static bool GetTargetPlatform_1_5(json& target_platforms_json, std::vector<Targe
     return is_known_type;
 }
 
-/// Parse a JSON string that should should be formatted as Schema 1.6.
-/// \param [out] error_message Any error messsages that occurred.
+/// @brief Parse a JSON string that should should be formatted as Schema 1.6.
+///
+/// @param [in]  json_doc      The json document.
+/// @param [out] update_info   The update information structure for schema 1.5.
+/// @param [out] error_message Any error messsages that occurred.
+///
+/// @return true if json string is parsed successfully; false otherwise.
 static bool ParseJsonSchema_1_5(json& json_doc, UpdateInfo_1_5& update_info, std::string& error_message)
 {
     bool is_parsed = true;
@@ -1011,7 +1035,12 @@ static bool ParseJsonSchema_1_5(json& json_doc, UpdateInfo_1_5& update_info, std
     return is_parsed;
 }
 
-/// Convert from Schema 1.5 to 1.6.
+/// @brief Convert from Schema 1.5 to 1.6.
+///
+/// @param [in]  update_info_1_5 The update information structure for schema 1.5.
+/// @param [out] update_info     The update information structure for schema 1.6.
+///
+/// @retval true always.
 static bool ConvertJsonSchema_1_5_To_1_6(const UpdateInfo_1_5& update_info_1_5, UpdateInfo& update_info)
 {
     // The biggest difference between 1.5 and 1.6 is that 1.5 only had one release version,
@@ -1083,19 +1112,27 @@ static bool ConvertJsonSchema_1_5_To_1_6(const UpdateInfo_1_5& update_info_1_5, 
     return true;
 }
 
-/// Translate the release_type_string to the corresponding ReleaseType enum value.
-/// \return True if the release_type_string is recognized and a valid UpdatePackageType is set.
-/// \return False if the release_type_string is not recognized.
+/// @brief Translate the release_type_string to the corresponding ReleaseType enum value.
+///
+/// @param [in]  release_type_string The release type string.
+/// @param [out] release_type        The release type.
+///
+/// @retval true if the release_type_string is recognized and a valid UpdatePackageType is set.
+/// @retval false if the release_type_string is not recognized.
 static bool GetReleaseType_1_6(const std::string& release_type_string, ReleaseType& release_type)
 {
     // Remains unchanged from Schema 1.5.
     return GetReleaseType_1_5(release_type_string, release_type);
 }
 
-/// Translate the target platforms JSON object to the corresponding TargetPlatforms list.
-/// \param [out] error_message Any error messsages that occurred.
-/// \return True if all the platforms are recognized.
-/// \return False if any platform is not recognized.
+/// @brief Translate the target platforms JSON object to the corresponding TargetPlatforms list.
+///
+/// @param [in]  target_platforms_json The target platforms json.
+/// @param [out] platforms             The target platforms list.
+/// @param [out] error_message         Any error messsages that occurred.
+///
+/// @retval true if all the platforms are recognized.
+/// @retval false if any platform is not recognized.
 static bool GetReleasePlatform_1_6(json& target_platforms_json, std::vector<TargetPlatform>& platforms, std::string& error_message)
 {
     bool is_known_type = false;
@@ -1142,17 +1179,26 @@ static bool GetReleasePlatform_1_6(json& target_platforms_json, std::vector<Targ
     return is_known_type;
 }
 
-/// Translate the package string to the corresponding UpdatePackageType.
-/// \return True if the package_string is recognized and a valid UpdatePackageType is set.
-/// \return False if the package_string is not recognized.
+/// @brief Translate the package string to the corresponding UpdatePackageType.
+///
+/// @param [in]  package_string The package string.
+/// @param [out] package_type   The update package type.
+///
+/// @return true if the package_string is recognized and a valid UpdatePackageType is set.
+/// @return false if the package_string is not recognized.
 static bool GetPackageType_1_6(const std::string& package_string, PackageType& package_type)
 {
     // Remains unchanged from Schema 1.5.
     return GetPackageType_1_5(package_string, package_type);
 }
 
-/// Parse a JSON string that should should be formatted as Schema 1.6.
-/// \param [out] error_message Any error messsages that occurred.
+/// @brief Parse a JSON string that should should be formatted as Schema 1.6.
+///
+/// @param [in]  json_doc      The json document.
+/// @param [out] update_info   The update information structure.
+/// @param [out] error_message Any error messsages that occurred.
+///
+/// @return true if json string is parsed successfully; false otherwise.
 static bool ParseJsonSchema_1_6(json& json_doc, UpdateInfo& update_info, std::string& error_message)
 {
     bool is_parsed = true;
@@ -1367,8 +1413,13 @@ static bool ParseJsonSchema_1_6(json& json_doc, UpdateInfo& update_info, std::st
     return is_parsed;
 }
 
-/// Updates all of the update_info except the bool to indicate whether it is a newer version.
-/// \param [out] error_message Any error messsages that occurred.
+/// @brief Updates all of the update_info except the bool to indicate whether it is a newer version.
+///
+/// @param [in]  json_string   The json string.
+/// @param [out] update_info   The update information structure.
+/// @param [out] error_message Any error messsages that occurred.
+///
+/// @return true if json string is parsed successfully; false otherwise.
 static bool ParseJsonString(const std::string& json_string, UpdateInfo& update_info, std::string& error_message)
 {
     bool is_parsed = true;
@@ -1437,7 +1488,11 @@ static bool ParseJsonString(const std::string& json_string, UpdateInfo& update_i
     return is_parsed;
 }
 
-// Filter out (remove) the Releases that are not relevant to the current platform.
+/// @brief Filter out (remove) the Releases that are not relevant to the current platform.
+///
+/// @param [in] update_info The update info struct.
+///
+/// @return true if there may be updates availble for the current platform; false otherwise.
 static bool FilterToCurrentPlatform(UpdateCheck::UpdateInfo& update_info)
 {
     bool may_have_updates_for_current_platform = true;
@@ -1472,14 +1527,93 @@ static bool FilterToCurrentPlatform(UpdateCheck::UpdateInfo& update_info)
     return may_have_updates_for_current_platform;
 }
 
-/// \brief
+/// @brief Parse a version string and populate the UpdateCheck::VersionInfo struct.
 ///
-/// \param product_version
-/// \param latest_releases_url
-/// \param json_filename
-/// \param update_info
-/// \param [out] error_message Any error messsages that occurred.
-/// \return
+/// This function takes a version string in the format "major.minor.patch.build" and
+/// extracts the individual components (major, minor, patch, and build) from the string.
+/// It then stores these components in the provided UpdateCheck::VersionInfo struct.
+///
+/// @param [in]  version_str The input version string to be parsed.
+/// @param [out] version     A reference to the UpdateCheck::VersionInfo struct to store the parsed version components.
+///
+/// @retval true if the version string is successfully parsed and all components are valid.
+/// @retval false if the parsing fails or the version string format is incorrect.
+static bool ParseVersionString(const std::string& version_str, UpdateCheck::VersionInfo& version)
+{
+    bool              ret = false;
+    std::stringstream ss(version_str);
+    char              dot;
+
+    // Check if the version string can be parsed successfully.
+    if (ss >> version.major && ss >> dot && dot == '.' && ss >> version.minor && ss >> dot && dot == '.' && ss >> version.patch && ss >> dot && dot == '.' &&
+        ss >> version.build)
+    {
+        ret = true;
+    }
+
+    return ret;
+}
+
+/// @brief Get the tool version from the environment variable "RDTS_UPDATER_ASSUME_VERSION".
+///
+/// This function retrieves the tool version from the environment variable "RDTS_UPDATER_ASSUME_VERSION"
+/// and parses it to extract the major, minor, patch, and build components.
+///
+/// @param [out] version A reference to the UpdateCheck::VersionInfo struct to store the retrieved or default version components.
+///
+/// @retval true if the tool version is successfully retrieved and parsed from the environment variable.
+/// @retval false if the tool version retrieval fails or the version string format is incorrect.
+static bool GetToolVersion(UpdateCheck::VersionInfo& version)
+{
+    bool        ret               = false;
+    const char* env_variable_name = "RDTS_UPDATER_ASSUME_VERSION";
+    char*       tool_version      = nullptr;
+
+#ifdef _WIN32
+    size_t required_size;
+    getenv_s(&required_size, nullptr, 0, env_variable_name);
+
+    if (required_size != 0)
+    {
+        tool_version = new (std::nothrow) char[required_size];
+        if (tool_version != nullptr)
+        {
+            getenv_s(&required_size, tool_version, required_size, env_variable_name);
+        }
+    }
+
+#else
+
+    tool_version = std::getenv(env_variable_name);
+#endif
+
+    if (tool_version != nullptr)
+    {
+        ret = true;
+        if (!ParseVersionString(tool_version, version))
+        {
+            version.major = 1;
+            version.minor = 0;
+            version.patch = 0;
+            version.build = 0;
+        }
+#ifdef _WIN32
+        delete[] tool_version;
+#endif
+    }
+    return ret;
+}
+
+/// @brief API for checking the availability of product updates.
+///
+/// @param [in]  product_version     The current product version.
+/// @param [in]  latest_releases_url The latest releases url.
+/// @param [in]  json_filename       The json file name.
+/// @param [in]  update_info         The update info struct.
+/// @param [out] error_message       Any error messsages that occurred.
+///
+/// @return true on success.
+/// @return true if checking for updates is successful; false otherwise.
 bool UpdateCheck::CheckForUpdates(const UpdateCheck::VersionInfo& product_version,
                                   const std::string&              latest_releases_url,
                                   const std::string&              json_filename,
@@ -1554,9 +1688,15 @@ bool UpdateCheck::CheckForUpdates(const UpdateCheck::VersionInfo& product_versio
                     if (has_compatible_update)
                     {
                         // Check to see if a version from the update is newer than the current product version.
+                        UpdateCheck::VersionInfo version_to_compare;
+                        if (!GetToolVersion(version_to_compare))
+                        {
+                            version_to_compare = product_version;
+                        }
+
                         for (auto release_iter = update_info.releases.begin(); release_iter != update_info.releases.end(); ++release_iter)
                         {
-                            update_info.is_update_available = (release_iter->version.Compare(product_version) == kNewer);
+                            update_info.is_update_available = (release_iter->version.Compare(version_to_compare) == kNewer);
                             if (update_info.is_update_available)
                             {
                                 break;
@@ -1577,10 +1717,11 @@ bool UpdateCheck::CheckForUpdates(const UpdateCheck::VersionInfo& product_versio
     return checked_for_update;
 }
 
-/// \brief Utility API to convert from a TargetPlatform enum to a string.
+/// @brief Utility API to convert from a TargetPlatform enum to a string.
 ///
-/// \param target_platform The target platform value to convert to the string equivalent.
-/// \return The string representation of the supplied target platform.
+/// @param [in] target_platform The target platform value to convert to the string equivalent.
+///
+/// @return The string representation of the supplied target platform.
 std::string UpdateCheck::TargetPlatformToString(const TargetPlatform target_platform)
 {
     std::string text;
@@ -1610,10 +1751,11 @@ std::string UpdateCheck::TargetPlatformToString(const TargetPlatform target_plat
     return text;
 }
 
-/// \brief Utility API to convert from a PackageType enum to a string.
+/// @brief Utility API to convert from a PackageType enum to a string.
 ///
-/// \param package_type The package type value to convert to the string equivalent.
-/// \return The string representation of the supplied package type.
+/// @param [in] package_type The package type value to convert to the string equivalent.
+///
+/// @return The string representation of the supplied package type.
 std::string UpdateCheck::PackageTypeToString(const PackageType package_type)
 {
     std::string text;
@@ -1646,10 +1788,11 @@ std::string UpdateCheck::PackageTypeToString(const PackageType package_type)
     return text;
 }
 
-/// \brief Utility API to convert from a ReleaseType enum to a string.
+/// @brief Utility API to convert from a ReleaseType enum to a string.
 ///
-/// \param release_type The release type value to convert to the string equivalent.
-/// \return The string representation of the supplied release type.
+/// @param [in] release_type The release type value to convert to the string equivalent.
+///
+/// @return The string representation of the supplied release type.
 std::string UpdateCheck::ReleaseTypeToString(const ReleaseType release_type)
 {
     std::string text;

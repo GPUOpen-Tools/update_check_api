@@ -1,8 +1,8 @@
 //==============================================================================
-/// Copyright (c) 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
-/// \author AMD Developer Tools Team
-/// \file
-/// \brief Constant strings used by the UpdateCheckApi.
+/// Copyright (c) 2018-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// @author AMD Developer Tools Team
+/// @file
+/// @brief Constant strings used by the UpdateCheckApi.
 //==============================================================================
 #ifndef UPDATECHECKAPI_UPDATE_CHECK_API_STRINGS_H_
 #define UPDATECHECKAPI_UPDATE_CHECK_API_STRINGS_H_

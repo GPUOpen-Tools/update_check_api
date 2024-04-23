@@ -1,8 +1,8 @@
 //==============================================================================
-/// Copyright (c) 2019-2020 Advanced Micro Devices, Inc. All rights reserved.
-/// \author AMD Developer Tools Team
-/// \file
-/// \brief A Qt Thread to check for updates in the background.
+/// Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// @author AMD Developer Tools Team
+/// @file
+/// @brief A Qt Thread to check for updates in the background.
 //==============================================================================
 #ifndef UPDATECHECKAPI_UPDATE_CHECK_THREAD_H_
 #define UPDATECHECKAPI_UPDATE_CHECK_THREAD_H_
@@ -12,8 +12,9 @@
 
 namespace UpdateCheck
 {
-    /// Contains the results of a check for updates and gets passed back to the
-    /// application through Qt slots & signals. If the check for updates gets
+    /// @brief Contains the results of a check for updates and gets passed back to the application through Qt slots & signals.
+    ///
+    /// If the check for updates gets
     /// cancelled, a different signal is sent and these results are not
     /// available. If the check fails, wasCheckSuccessful will be false and a
     /// description of the error will be in error_message. If the check succeeeds
@@ -36,7 +37,8 @@ namespace UpdateCheck
         UpdateCheck::UpdateInfo update_info;
     };
 
-    /// This is the worker object that gets executed in the background thread.
+    /// @brief This is the worker object that gets executed in the background thread.
+    ///
     /// Only the ThreadController should ever interact with the Worker, not the
     /// application.
     class Worker : public QObject
@@ -44,37 +46,48 @@ namespace UpdateCheck
         Q_OBJECT
 
     public:
-        /// Constructor which accepts the current application version number.
+        /// @brief Constructor which accepts the current application version number.
+        ///
         /// This allows the worker to do the comparison to determine if any new
         /// versions are considered an update to the current version.
+        ///
+        /// @param [in] current_major_version The current major version.
+        /// @param [in] current_minor_version The current minor version.
+        /// @param [in] current_build_version The current build version.
+        /// @param [in] current_patch_version The current patch version.
         Worker(uint32_t current_major_version, uint32_t current_minor_version, uint32_t current_build_version, uint32_t current_patch_version);
 
-        /// Virtual destructor.
+        /// @brief Virtual destructor.
         virtual ~Worker();
 
     public slots:
-        /// Activate this slot to perform the check for updates. If used
-        /// properly, this worker object will have already been moved to a
+        /// @brief Activate this slot to perform the check for updates.
+        ///
+        /// If used properly, this worker object will have already been moved to a
         /// background thread, and therefore this function will also execute
         /// in the background thread.
+        ///
+        /// @param [in] latest_releases_url    The latest releases url.
+        /// @param [in] updates_asset_filename The updates asset filename.
         void DoCheckForUpdates(const QString& latest_releases_url, const QString& updates_asset_filename);
 
     signals:
-        /// Signals that the check for updates has completed (either
-        /// successfully or not) and that a result is available.
+        /// @brief Signals that the check for updates has completed (either successfully or not) and that a result is available.
+        ///
+        /// @param [in] update_check_results The results of the check for updates.
         void ResultReady(const UpdateCheck::Results& update_check_results);
 
     private:
-        /// Hide the default constructor.
+        /// @brief Hide the default constructor.
         Worker();
 
         /// Stores the current version number while the CheckForUpdates is running.
         UpdateCheck::VersionInfo version_info_;
     };
 
-    /// Controller object that creates the background thread and interacts with
-    /// the worker object to start the check for updates, and to receive the
-    /// results. This helps to simplify the integration of the check for updates
+    /// @brief Controller object that creates the background thread and interacts with the worker object to start the check for updates, and to receive the results.
+    ///
+    /// This helps to simplify the integration of the check for updates
     /// functionality into applications. Applications should interact with this
     /// Object. When the ThreadController is created, a background thread is
     /// also spawned, but not put to work immediately. In order to stop the
@@ -85,8 +98,9 @@ namespace UpdateCheck
         Q_OBJECT
 
     public:
-        /// Constructor which takes in a parent object, and the current version
-        /// numbers. By supplying a parent object, this thread will
+        /// @brief Constructor which takes in a parent object, and the current version numbers.
+        ///
+        /// By supplying a parent object, this thread will
         /// automatically get deleted when the parent is deleted, however it is
         /// recommended to delete the ThreadController once it has notified the
         /// application that it was cancelled or that it has completed. If the
@@ -94,47 +108,71 @@ namespace UpdateCheck
         /// useable and should be deleted. However, if the check for updates
         /// completes normally (regardless of whether it was successful), the
         /// ThreadController can be re-used to check for an update again.
+        ///
+        /// @param [in] parent                The parent QObject.
+        /// @param [in] current_major_version The current major version.
+        /// @param [in] current_minor_version The current minor version.
+        /// @param [in] current_build_version The current build version.
+        /// @param [in] current_patch_version The current patch version.
         ThreadController(QObject* parent,
                          uint32_t current_major_version,
                          uint32_t current_minor_version,
                          uint32_t current_build_version,
                          uint32_t current_patch_version);
 
-        /// Virtual destructor.
+        /// @brief Virtual destructor.
         virtual ~ThreadController();
 
     signals:
 
-        /// This should NOT be used by an application. See StartCheckForUpdates.
+        /// @brief This should NOT be used by an application. See StartCheckForUpdates.
+        ///
         /// This signal is for communication between the ThreadController and
         /// the worker object to signal the CheckForUpdates to start in the
         /// background thread.
+        ///
+        /// @param [in] latest_releases_url    The latest releases url.
+        /// @param [in] updates_asset_filename The updates asset filename.
         void DoCheckForUpdates(const QString& latest_releases_url, const QString& updates_asset_filename);
 
-        /// Emitted by the background thread when the CheckForUpdates has completed.
+        /// @brief Emitted by the background thread when the CheckForUpdates has completed.
+        ///
+        /// @param [in] thread               The thread controller used to check for updates.
+        /// @param [in] update_check_results The results of the check for updates.
         void CheckForUpdatesComplete(UpdateCheck::ThreadController* thread, const UpdateCheck::Results& update_check_results);
 
-        /// Emitted when the CheckForUpdates has completed due to being cancelled.
+        /// @brief Emitted when the CheckForUpdates has completed due to being cancelled.
+        ///
         /// The resulting UpdateInfo will not be reliable if this signal is emitted.
+        ///
+        /// @param [in] thread The thread controller used to check for updates.
         void CheckForUpdatesCancelled(UpdateCheck::ThreadController* thread);
 
     public slots:
 
-        /// For use by an application to start the check for updates. This slot
-        /// will make sure that certain flags are set to properly support the
+        /// @brief For use by an application to start the check for updates.
+        ///
+        /// This slot will make sure that certain flags are set to properly support the
         /// ability to cancel a thread.
+        ///
+        /// @param [in]  latest_releases_url    The latest releases url.
+        /// @param [in]  updates_asset_filename The updates asset filename.
         void StartCheckForUpdates(const QString& latest_releases_url, const QString& updates_asset_filename);
 
-        /// For use by an application to request that the check for updates be
-        /// cancelled. This is an asynchronous request, so the application
+        /// @brief For use by an application to request that the check for updates be cancelled.
+        ///
+        /// This is an asynchronous request, so the application
         /// should wait until it receives the CheckForUpdatesCancelled signal.
         void CancelCheckForUpdates();
 
     private slots:
-        /// This should NOT be used by an application. See CheckForUpdatesComplete.
+        /// @brief This should NOT be used by an application. See CheckForUpdatesComplete.
+        ///
         /// This notifies the ThreadController that the worker object has
         /// finished the check for Updates. The supplied results may not be
         /// accurate if the thread was cancelled.
+        ///
+        /// @param [in] update_check_results The results of the check for updates.
         void ThreadFinished(const UpdateCheck::Results& update_check_results);
 
     private:
