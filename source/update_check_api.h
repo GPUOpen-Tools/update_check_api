@@ -7,6 +7,7 @@
 #ifndef UPDATECHECKAPI_UPDATE_CHECK_API_H_
 #define UPDATECHECKAPI_UPDATE_CHECK_API_H_
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

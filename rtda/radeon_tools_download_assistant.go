@@ -9,7 +9,7 @@ import (
 )
 
 var rtda_version = "1.0.1"
-var update_check_api_version = "2.1.0"
+var update_check_api_version = "2.1.1"
 
 func main() {
 
