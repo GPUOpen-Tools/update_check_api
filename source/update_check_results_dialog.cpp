@@ -32,9 +32,6 @@ static const char* kStringReleaseDate                    = "Release date: ";
 static const char* kStringTags                           = "Tags: ";
 static const char* kStringTagsSeparator                  = ", ";
 
-static const char* kTextBrowserStyleSheet =
-    "QTextBrowser { background: rgba(255,255,255,0%); } QToolTip { background-color: rgb(248, 248, 220); padding: 1px; }";
-
 UpdateCheckResultsDialog::UpdateCheckResultsDialog(QWidget* parent)
     : QDialog(parent)
     , ui_(new Ui::UpdateCheckResultsDialog)
@@ -46,7 +43,6 @@ UpdateCheckResultsDialog::UpdateCheckResultsDialog(QWidget* parent)
 
     // Make the background of the textbrowser transparent.
     ui_->text_browser_->setAttribute(Qt::WA_TranslucentBackground);
-    ui_->text_browser_->setStyleSheet(kTextBrowserStyleSheet);
 
     setWindowTitle(kStringDialogTitle);
 }
