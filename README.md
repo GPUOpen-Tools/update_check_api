@@ -2,22 +2,26 @@
 The UpdateCheckAPI repository provides utility source code for AMD Tools to check for new releases available through GitHub's Release API. The code also provides a Qt-based dialog that can be used to display the results of the check for updates.
 
 ## Usage:
-Projects that want to utilize UpdateCheckAPI can do so using CMake's add_subdirectory(<path to UpdateCheckAPI>) command. UpdateCheckAPI contains a CMakeLists.txt which defines several other cached variables that identify the various files that are necessary to use UpdateCheckAPI:
-* UPDATECHECKAPI_SRC (source files)
-* UPDATECHECKAPI_INC (header files)
-* UPDATECHECKAPI_INC_DIRS (additional include directories)
-* UPDATECHECKAPI_LIBS (required libraries)
-* UPDATECHECKAPI_LIB_DIRS (additional library directories)
+Projects that want to utilize UpdateCheckAPI can do so using CMake's `add_subdirectory(<path to UpdateCheckAPI>)` command. UpdateCheckAPI defines two CMake library targets:
+* `update_check_api`, which contains the update-checking functionality
+* `update_check_api_qt`, which contains the Qt-based widgets for checking for updates in a GUI application.
 
-Additional CMake variables are also defined to utilize the Qt widgets:
-* UPDATECHECKAPI_QT_SRC (source files which reference Qt components)
-* UPDATECHECKAPI_QT_INC (header files which reference Qt components)
-* UPDATECHECKAPI_QT_UI (ui files for the new widgets)
+To use them, configure your project to link against one of the libraries using `target_link_libraries`.
 
-Also, the UpdateCheckAPI utilizes an executable named rtda to download files from the internet. This needs to copied into the application's working directory. To simplify copying the executable, its platform-specific path is cached in the CMake variable:
-* RTDA_PATH (Path to the platform-specific rtda executable)
+`update_check_api_qt` depends on `update_check_api` and will provide it so only one `target_link_libraries` is required.
+
+### Headless builds
+Projects which do not depend on Qt can use the non-GUI components of UpdateCheckApi without adding a Qt dependency
+by setting the `UPDATE_CHECK_API_HEADLESS` CMake cache option.
+
+### RTDA
+The UpdateCheckAPI utilizes an executable named rtda to download files from the internet. This needs to copied into the application's working directory. To simplify copying the executable, its platform-specific path is cached in the CMake variable:
+* `RTDA_PATH` (Path to the platform-specific rtda executable)
 
 ## Release Notes:
+Version 2.1.2
+* Define a separate target for the update checker GUI
+
 Version 2.1.1
 * Support an environment variable "RDTS_UPDATER_ASSUME_VERSION" for overriding the current version of the tool
 * Tooltip painting updates

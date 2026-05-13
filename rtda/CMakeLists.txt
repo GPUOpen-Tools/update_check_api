@@ -1,5 +1,5 @@
 #=================================================================
-# Copyright 2018-2020 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright 2018-2026 Advanced Micro Devices, Inc. All rights reserved.
 #=================================================================
 # CMakeList.txt : CMake project to compile radeon_tools_download_assistant.go
 #

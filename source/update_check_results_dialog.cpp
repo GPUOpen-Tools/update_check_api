@@ -1,5 +1,5 @@
 //==============================================================================
-/// Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// Copyright (c) 2019-2026 Advanced Micro Devices, Inc. All rights reserved.
 /// @author AMD Developer Tools Team
 /// @file
 /// @brief A Qt Dialog to display the results of the UpdateCheckApi.

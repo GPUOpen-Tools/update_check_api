@@ -1,5 +1,5 @@
 //==============================================================================
-/// Copyright (c) 2018-2024 Advanced Micro Devices, Inc. All rights reserved.
+/// Copyright (c) 2018-2026 Advanced Micro Devices, Inc. All rights reserved.
 /// @author AMD Developer Tools Team
 /// @file
 /// @brief An interface to allow applications to check for updated versions.
@@ -14,7 +14,7 @@
 // Versioning information of the UpdateCheckAPI.
 #define UPDATECHECKAPI_MAJOR 2
 #define UPDATECHECKAPI_MINOR 1
-#define UPDATECHECKAPI_PATCH 1
+#define UPDATECHECKAPI_PATCH 2
 #define UPDATECHECKAPI_BUILD 0
 
 namespace UpdateCheck
@@ -153,9 +153,9 @@ namespace UpdateCheck
     /// @param [in]  latest_releases_url The latest releases url.
     /// @param [in]  json_filename       The json file name.
     /// @param [in]  update_info         The update info struct.
-    /// @param [out] error_message       Any error messsages that occurred.
+    /// @param [out] error_message       Any error messages that occurred.
     ///
-    /// @return true if checking for updates is successful; false otherwise
+    /// @return true if checking for updates is successful; false otherwise.
     bool CheckForUpdates(const VersionInfo& current_product_version,
                          const std::string& latest_release_url,
                          const std::string& json_filename,
